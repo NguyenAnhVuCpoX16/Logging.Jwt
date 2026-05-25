@@ -1,0 +1,105 @@
+@page "/users/create"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+<PageTitle>Create User</PageTitle>
+
+<h1>Create User</h1>
+
+<EditForm Model="_model" OnValidSubmit="HandleCreateAsync" FormName="createUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="_model.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="displayName">Display name</label>
+        <InputText id="displayName" class="form-control" @bind-Value="_model.DisplayName" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="confirmPassword">Confirm password</label>
+        <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="_model.ConfirmPassword" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger">@_errorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="alert alert-success">@_successMessage</div>
+    }
+
+    <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">Create</button>
+</EditForm>
+
+@code {
+    private readonly CreateUserFormModel _model = new();
+    private string? _errorMessage;
+    private string? _successMessage;
+    private bool _isSubmitting;
+
+    private async Task HandleCreateAsync()
+    {
+        _errorMessage = null;
+        _successMessage = null;
+
+        if (_model.Password != _model.ConfirmPassword)
+        {
+            _errorMessage = "Passwords do not match.";
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/users", new
+            {
+                email = _model.Email,
+                password = _model.Password,
+                displayName = _model.DisplayName
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                _successMessage = $"User {_model.Email} created successfully.";
+                _model.Email = string.Empty;
+                _model.DisplayName = string.Empty;
+                _model.Password = string.Empty;
+                _model.ConfirmPassword = string.Empty;
+                return;
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            _errorMessage = string.IsNullOrWhiteSpace(error) ? "Failed to create user." : error;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Unable to connect to the server.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private sealed class CreateUserFormModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}

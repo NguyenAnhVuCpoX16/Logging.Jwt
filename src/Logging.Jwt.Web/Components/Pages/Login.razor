@@ -1,0 +1,59 @@
+@page "/login"
+@using Logging.Jwt.Web.Helpers
+@attribute [AllowAnonymous]
+
+<PageTitle>Login</PageTitle>
+
+@if (!string.IsNullOrEmpty(_returnUrl))
+{
+    <p class="text-muted">Sign in to continue to the requested page.</p>
+}
+
+<h1>Login</h1>
+
+@if (_showError)
+{
+    <div class="alert alert-danger">Invalid email or password.</div>
+}
+
+<form method="post" action="/auth/login">
+    @if (!string.IsNullOrEmpty(_returnUrl))
+    {
+        <input type="hidden" name="returnUrl" value="@_returnUrl" />
+    }
+
+    <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <input id="email" name="email" type="email" class="form-control" required autocomplete="username" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <input id="password" name="password" type="password" class="form-control" required autocomplete="current-password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+<p class="text-muted mt-3">Seed: admin@local.dev / Admin@123</p>
+
+@code {
+    private string? _returnUrl;
+    private bool _showError;
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (AuthUrlHelper.IsLocalUrl(ReturnUrl))
+        {
+            _returnUrl = ReturnUrl;
+        }
+
+        _showError = string.Equals(Error, "invalid", StringComparison.OrdinalIgnoreCase);
+    }
+}

@@ -1,0 +1,33 @@
+﻿@inherits LayoutComponentBase
+@inject TokenInitializer TokenInitializer
+@inject JwtAuthenticationStateProvider AuthStateProvider
+
+@code {
+    protected override void OnInitialized()
+    {
+        TokenInitializer.InitializeFromCookie();
+        AuthStateProvider.NotifyAuthenticationStateChanged();
+    }
+}
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <span class="text-muted">JWT Identity Demo</span>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

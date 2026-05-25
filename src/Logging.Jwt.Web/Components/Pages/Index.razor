@@ -1,0 +1,15 @@
+@page "/"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>Welcome</h1>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Hello, @(context.User.FindFirst("display_name")?.Value ?? context.User.Identity?.Name)!</p>
+        <p class="text-muted">You are authenticated with JWT.</p>
+        <p><a href="swagger">Open Swagger</a></p>
+    </Authorized>
+</AuthorizeView>

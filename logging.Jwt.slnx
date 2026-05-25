@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Logging.Jwt.Data/Logging.Jwt.Data.csproj" />
+    <Project Path="src/Logging.Jwt.Web/Logging.Jwt.Web.csproj" />
+  </Folder>
+</Solution>
